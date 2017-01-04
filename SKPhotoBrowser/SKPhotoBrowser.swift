@@ -157,7 +157,12 @@ open class SKPhotoBrowser: UIViewController {
         get { return .slide }
     }
     
-    // MARK: - Notification
+    override open var preferredStatusBarStyle: UIStatusBarStyle {
+        get { return SKPhotoBrowserOptions.statusBarStyle }
+    }
+
+    
+    // MARK: - NotificationstatusBarStyle
     open func handleSKPhotoLoadingDidEndNotification(_ notification: Notification) {
         guard let photo = notification.object as? SKPhotoProtocol else {
             return
