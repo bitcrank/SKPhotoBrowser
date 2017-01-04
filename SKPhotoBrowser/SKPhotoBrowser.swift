@@ -240,8 +240,6 @@ public extension SKPhotoBrowser {
     
         if let size = size {
             deleteButton.setFrameSize(size)
-        } else {
-            deleteButton.setFrameSize(image.size)
         }
     }
 }
