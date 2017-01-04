@@ -122,6 +122,11 @@ open class SKPhotoBrowser: UIViewController {
             photo.index = i
             i = i + 1
         }
+        
+        self.statusBarShouldBeHidden = true
+        UIView.animate(withDuration: 0.25) {
+            self.setNeedsStatusBarAppearanceUpdate()
+        }
     }
     
     override open func viewWillLayoutSubviews() {
@@ -143,10 +148,13 @@ open class SKPhotoBrowser: UIViewController {
         isViewActive = true
     }
     
-    open override var prefersStatusBarHidden: Bool {
-        get {
-            return SKPhotoBrowserOptions.displayStatusbar == false
-        }
+    private var statusBarShouldBeHidden = false
+    override open var prefersStatusBarHidden : Bool {
+        return self.statusBarShouldBeHidden ? SKPhotoBrowserOptions.displayStatusbar == false : false
+    }
+    
+    override open var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        get { return .slide }
     }
     
     // MARK: - Notification
@@ -200,6 +208,12 @@ open class SKPhotoBrowser: UIViewController {
     }
     
     open func dismissPhotoBrowser(animated: Bool, completion: ((Void) -> Void)? = nil) {
+        self.statusBarShouldBeHidden = false
+        UIView.animate(withDuration: 0.25) {
+            self.setNeedsStatusBarAppearanceUpdate()
+        }
+
+        
         prepareForClosePhotoBrowser()
 
         if !animated {
@@ -213,6 +227,11 @@ open class SKPhotoBrowser: UIViewController {
     }
 
     open func determineAndClose() {
+        self.statusBarShouldBeHidden = false
+        UIView.animate(withDuration: 0.25) {
+            self.setNeedsStatusBarAppearanceUpdate()
+        }
+
         delegate?.willDismissAtPageIndex?(currentPageIndex)
         animator.willDismiss(self)
     }
