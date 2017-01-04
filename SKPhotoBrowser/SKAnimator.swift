@@ -38,12 +38,15 @@ class SKAnimator: NSObject, SKPhotoBrowserAnimatorDelegate {
     }
     
     func willPresent(_ browser: SKPhotoBrowser) {
-        guard let appWindow = UIApplication.shared.delegate?.window else {
+        let window: UIWindow
+        if let delegate = UIApplication.shared.delegate, let delegateWindow = delegate.window, let unwrappedWindow = delegateWindow {
+            window = unwrappedWindow
+        } else if let keyWindow = UIApplication.shared.keyWindow {
+            window = keyWindow
+        } else {
             return
         }
-        guard let window = appWindow else {
-            return
-        }
+        
         guard let sender = browser.delegate?.viewForPhoto?(browser, index: browser.initialPageIndex) ?? senderViewForAnimation else {
             presentAnimation(browser)
             return

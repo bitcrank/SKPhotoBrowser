@@ -96,9 +96,9 @@ open class SKPhotoBrowser: UIViewController {
     func setup() {
         if let window = UIApplication.shared.delegate?.window {
             applicationWindow = window
-        }else if let window = UIApplication.shared.keyWindow {
+        } else if let window = UIApplication.shared.keyWindow {
             applicationWindow = window
-        }else {
+        } else {
             return
         }
         
