@@ -540,6 +540,7 @@ private extension SKPhotoBrowser {
         closeButton.addTarget(self, action: #selector(closeButtonPressed(_:)), for: .touchUpInside)
         closeButton.isHidden = !SKPhotoBrowserOptions.displayCloseButton
         closeButton.frame = closeButton.showFrame
+        closeButton.tintColor = .white
         view.addSubview(closeButton)
     }
     
@@ -548,6 +549,7 @@ private extension SKPhotoBrowser {
         deleteButton.addTarget(self, action: #selector(deleteButtonPressed(_:)), for: .touchUpInside)
         deleteButton.isHidden = !SKPhotoBrowserOptions.displayDeleteButton
         deleteButton.frame = deleteButton.showFrame
+        deleteButton.tintColor = .white
         view.addSubview(deleteButton)
     }
     
