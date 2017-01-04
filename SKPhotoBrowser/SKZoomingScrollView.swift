@@ -239,9 +239,6 @@ open class SKZoomingScrollView: UIScrollView {
             let zoomRect = zoomRectForScrollViewWith(maximumZoomScale, touchPoint: touchPoint)
             zoom(to: zoomRect, animated: true)
         }
-        
-        // delay control
-        photoBrowser?.hideControlsAfterDelay()
     }
 }
 
@@ -250,10 +247,6 @@ open class SKZoomingScrollView: UIScrollView {
 extension SKZoomingScrollView: UIScrollViewDelegate {
     public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return photoImageView
-    }
-    
-    public func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
-        photoBrowser?.cancelControlHiding()
     }
     
     public func scrollViewDidZoom(_ scrollView: UIScrollView) {
@@ -273,10 +266,8 @@ extension SKZoomingScrollView: SKDetectingViewDelegate {
             return
         }
         
-        if browser.areControlsHidden() == false && SKPhotoBrowserOptions.enableSingleTapDismiss == true {
+        if SKPhotoBrowserOptions.enableSingleTapDismiss == true {
             browser.determineAndClose()
-        } else {
-            browser.toggleControls()
         }
     }
     
@@ -298,8 +289,6 @@ extension SKZoomingScrollView: SKDetectingImageViewDelegate {
         }
         if SKPhotoBrowserOptions.enableSingleTapDismiss {
             browser.determineAndClose()
-        } else {
-            browser.toggleControls()
         }
     }
     

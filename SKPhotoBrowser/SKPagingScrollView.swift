@@ -149,7 +149,6 @@ class SKPagingScrollView: UIScrollView {
             // if exists caption, insert
             if let captionView: SKCaptionView = createCaptionView(index) {
                 captionView.frame = frameForCaptionView(captionView, index: index)
-                captionView.alpha = browser.areControlsHidden() ? 0 : 1
                 addSubview(captionView)
                 // ref val for control
                 page.captionView = captionView
