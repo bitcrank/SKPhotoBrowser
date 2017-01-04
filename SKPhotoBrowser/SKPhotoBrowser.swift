@@ -17,7 +17,6 @@ open class SKPhotoBrowser: UIViewController {
     
     fileprivate var closeButton: SKCloseButton!
     fileprivate var deleteButton: SKDeleteButton!
-    fileprivate var toolbar: SKToolbar!
     
     // actions
     fileprivate var activityViewController: UIActivityViewController!
@@ -33,16 +32,12 @@ open class SKPhotoBrowser: UIViewController {
     var currentPageIndex: Int = 0
     
     // for status check property
-    fileprivate var isEndAnimationByToolBar: Bool = true
     fileprivate var isViewActive: Bool = false
     fileprivate var isPerformingLayout: Bool = false
     
     // pangesture property
     fileprivate var firstX: CGFloat = 0.0
     fileprivate var firstY: CGFloat = 0.0
-    
-    // timer
-    fileprivate var controlVisibilityTimer: Timer!
     
     // delegate
     fileprivate let animator = SKAnimator()
@@ -53,9 +48,6 @@ open class SKPhotoBrowser: UIViewController {
     var numberOfPhotos: Int {
         return photos.count
     }
-    
-    // statusbar initial state
-    private var statusbarHidden: Bool = UIApplication.shared.isStatusBarHidden
     
     // MARK - Initializer
     required public init?(coder aDecoder: NSCoder) {
@@ -116,7 +108,6 @@ open class SKPhotoBrowser: UIViewController {
         configureAppearance()
         configureCloseButton()
         configureDeleteButton()
-        configureToolbar()
         
         animator.willPresent(self)
     }
@@ -140,8 +131,6 @@ open class SKPhotoBrowser: UIViewController {
         closeButton.updateFrame()
         deleteButton.updateFrame()
         pagingScrollView.updateFrame(view.bounds, currentPageIndex: currentPageIndex)
-        
-        toolbar.frame = frameForToolbarAtOrientation()
         
         // where did start
         delegate?.didShowPhotoAtIndex?(currentPageIndex)
@@ -193,8 +182,6 @@ open class SKPhotoBrowser: UIViewController {
     open func performLayout() {
         isPerformingLayout = true
         
-        toolbar.updateToolbar(currentPageIndex)
-        
         // reset local cache
         pagingScrollView.reload()
         
@@ -242,8 +229,6 @@ public extension SKPhotoBrowser {
     
         if let size = size {
             closeButton.setFrameSize(size)
-        } else {
-            closeButton.setFrameSize(image.size)
         }
     }
   
@@ -283,12 +268,6 @@ public extension SKPhotoBrowser {
     
     func jumpToPageAtIndex(_ index: Int) {
         if index < numberOfPhotos {
-            if !isEndAnimationByToolBar {
-                return
-            }
-            isEndAnimationByToolBar = false
-            toolbar.updateToolbar(currentPageIndex)
-            
             let pageFrame = frameForPageAtIndex(index)
             pagingScrollView.animate(pageFrame)
         }
@@ -304,41 +283,6 @@ public extension SKPhotoBrowser {
     
     func gotoNextPage() {
         jumpToPageAtIndex(currentPageIndex + 1)
-    }
-    
-    func popupShare(includeCaption: Bool = true) {
-        let photo = photos[currentPageIndex]
-        guard let underlyingImage = photo.underlyingImage else {
-            return
-        }
-        
-        var activityItems: [AnyObject] = [underlyingImage]
-        if photo.caption != nil && includeCaption {
-            if let shareExtraCaption = SKPhotoBrowserOptions.shareExtraCaption {
-                let caption = photo.caption + shareExtraCaption
-                activityItems.append(caption as AnyObject)
-            } else {
-                activityItems.append(photo.caption as AnyObject)
-            }
-        }
-        
-        if let activityItemProvider = activityItemProvider {
-            activityItems.append(activityItemProvider)
-        }
-        
-        activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-        activityViewController.completionWithItemsHandler = {
-            (activity, success, items, error) in
-            self.activityViewController = nil
-        }
-        if UI_USER_INTERFACE_IDIOM() == .phone {
-            present(activityViewController, animated: true, completion: nil)
-        } else {
-            activityViewController.modalPresentationStyle = .popover
-            let popover: UIPopoverPresentationController! = activityViewController.popoverPresentationController
-            popover.barButtonItem = toolbar.toolActionButton
-            present(activityViewController, animated: true, completion: nil)
-        }
     }
     
     func getCurrentPageIndex() -> Int {
@@ -377,24 +321,6 @@ internal extension SKPhotoBrowser {
 // MARK: - Internal Function For Frame Calc
 
 internal extension SKPhotoBrowser {
-    func frameForToolbarAtOrientation() -> CGRect {
-        let currentOrientation = UIApplication.shared.statusBarOrientation
-        var height: CGFloat = navigationController?.navigationBar.frame.size.height ?? 44
-        if UIInterfaceOrientationIsLandscape(currentOrientation) {
-            height = 32
-        }
-        return CGRect(x: 0, y: view.bounds.size.height - height, width: view.bounds.size.width, height: height)
-    }
-    
-    func frameForToolbarHideAtOrientation() -> CGRect {
-        let currentOrientation = UIApplication.shared.statusBarOrientation
-        var height: CGFloat = navigationController?.navigationBar.frame.size.height ?? 44
-        if UIInterfaceOrientationIsLandscape(currentOrientation) {
-            height = 32
-        }
-        return CGRect(x: 0, y: view.bounds.size.height + height, width: view.bounds.size.width, height: height)
-    }
-    
     func frameForPageAtIndex(_ index: Int) -> CGRect {
         let bounds = pagingScrollView.bounds
         var pageFrame = bounds
@@ -474,42 +400,6 @@ internal extension SKPhotoBrowser {
     func closeButtonPressed(_ sender: UIButton) {
         determineAndClose()
     }
-    
-    func actionButtonPressed(ignoreAndShare: Bool) {
-        delegate?.willShowActionSheet?(currentPageIndex)
-        
-        guard numberOfPhotos > 0 else {
-            return
-        }
-        
-        if let titles = SKPhotoBrowserOptions.actionButtonTitles {
-            let actionSheetController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-            actionSheetController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) -> Void in
-            }))
-            for idx in titles.indices {
-                actionSheetController.addAction(UIAlertAction(title: titles[idx], style: .default, handler: { (action) -> Void in
-                    self.delegate?.didDismissActionSheetWithButtonIndex?(idx, photoIndex: self.currentPageIndex)
-                }))
-            }
-            
-            if UI_USER_INTERFACE_IDIOM() == .phone {
-                present(actionSheetController, animated: true, completion: nil)
-            } else {
-                actionSheetController.modalPresentationStyle = .popover
-                
-                if let popoverController = actionSheetController.popoverPresentationController {
-                    popoverController.sourceView = self.view
-                    popoverController.barButtonItem = toolbar.toolActionButton
-                }
-                
-                present(actionSheetController, animated: true, completion: { () -> Void in
-                })
-            }
-            
-        } else {
-            popupShare()
-        }
-    }
 }
 
 // MARK: - Private Function 
@@ -541,6 +431,7 @@ private extension SKPhotoBrowser {
         closeButton.isHidden = !SKPhotoBrowserOptions.displayCloseButton
         closeButton.frame = closeButton.showFrame
         closeButton.tintColor = .white
+        closeButton.imageView?.contentMode = .center
         view.addSubview(closeButton)
     }
     
@@ -550,12 +441,8 @@ private extension SKPhotoBrowser {
         deleteButton.isHidden = !SKPhotoBrowserOptions.displayDeleteButton
         deleteButton.frame = deleteButton.showFrame
         deleteButton.tintColor = .white
+        deleteButton.imageView?.contentMode = .center
         view.addSubview(deleteButton)
-    }
-    
-    func configureToolbar() {
-        toolbar = SKToolbar(frame: frameForToolbarAtOrientation(), browser: self)
-        view.addSubview(toolbar)
     }
     
     func deleteImage() {
@@ -570,7 +457,6 @@ private extension SKPhotoBrowser {
             if currentPageIndex != 0 {
                 gotoPreviousPage()
             }
-            toolbar.updateToolbar(currentPageIndex)
             
         } else if photos.count == 1 {
             dismissPhotoBrowser(animated: true)
@@ -599,7 +485,6 @@ extension SKPhotoBrowser: UIScrollViewDelegate {
         
         if currentPageIndex != previousCurrentPage {
             delegate?.didShowPhotoAtIndex?(currentPageIndex)
-            toolbar.updateToolbar(currentPageIndex)
         }
     }
     
@@ -609,6 +494,5 @@ extension SKPhotoBrowser: UIScrollViewDelegate {
     }
     
     public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        isEndAnimationByToolBar = true
     }
 }

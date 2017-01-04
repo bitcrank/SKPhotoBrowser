@@ -9,7 +9,6 @@
 import UIKit
 
 open class SKZoomingScrollView: UIScrollView {
-    var captionView: SKCaptionView!
     var photo: SKPhotoProtocol! {
         didSet {
             photoImageView.image = nil
@@ -158,10 +157,6 @@ open class SKZoomingScrollView: UIScrollView {
     
     open func prepareForReuse() {
         photo = nil
-        if captionView != nil {
-            captionView.removeFromSuperview()
-            captionView = nil 
-        }
     }
     
     // MARK: - image

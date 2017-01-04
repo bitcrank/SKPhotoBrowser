@@ -10,14 +10,6 @@ import UIKit
 
 public struct SKPhotoBrowserOptions {
     public static var displayStatusbar: Bool = false
-    
-    public static var displayAction: Bool = true
-    public static var shareExtraCaption: String? = nil
-    public static var actionButtonTitles: [String]?
-    
-    public static var displayToolbar: Bool = true
-    public static var displayCounterLabel: Bool = true
-    public static var displayBackAndForwardButton: Bool = true
     public static var disableVerticalSwipe: Bool = false
     
     public static var displayCloseButton: Bool = true
