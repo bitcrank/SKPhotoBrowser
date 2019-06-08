@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class SKPagingScrollView: UIScrollView {
     let pageIndexTagOffset: Int = 1000

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 // helpers which often used
 private let bundle = Bundle(for: SKPhotoBrowser.self)
