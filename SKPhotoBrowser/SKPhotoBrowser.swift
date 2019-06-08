@@ -67,7 +67,7 @@ open class SKPhotoBrowser: UIViewController {
     
     public convenience init(photos: [SKPhotoProtocol]) {
         self.init(nibName: nil, bundle: nil)
-        let pictures = photos.flatMap { $0 }
+        let pictures = photos.compactMap { $0 }
         for photo in pictures {
             photo.checkCache()
             self.photos.append(photo)
@@ -79,7 +79,7 @@ open class SKPhotoBrowser: UIViewController {
         animator.senderOriginImage = originImage
         animator.senderViewForAnimation = animatedFromView
         
-        let pictures = photos.flatMap { $0 }
+        let pictures = photos.compactMap { $0 }
         for photo in pictures {
             photo.checkCache()
             self.photos.append(photo)
@@ -212,7 +212,7 @@ open class SKPhotoBrowser: UIViewController {
         NSObject.cancelPreviousPerformRequests(withTarget: self)
     }
     
-    open func dismissPhotoBrowser(animated: Bool, completion: ((Void) -> Void)? = nil) {
+    open func dismissPhotoBrowser(animated: Bool, completion: (() -> Void)? = nil) {
         prepareForClosePhotoBrowser()
 
         if !animated {
@@ -220,7 +220,7 @@ open class SKPhotoBrowser: UIViewController {
         }
         
         dismiss(animated: !animated) {
-            completion?(())
+            completion?()
             self.delegate?.didDismissAtPageIndex?(self.currentPageIndex)
         }
     }
