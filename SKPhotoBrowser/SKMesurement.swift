@@ -6,7 +6,6 @@
 //  Copyright © 2016年 suzuki_keishi. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 struct SKMesurement {
